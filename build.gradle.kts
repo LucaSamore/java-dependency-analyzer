@@ -30,6 +30,7 @@ dependencies {
   implementation(platform("io.vertx:vertx-stack-depchain:$vertxVersion"))
   implementation("io.vertx:vertx-lang-kotlin")
   implementation(kotlin("stdlib-jdk8"))
+  implementation("com.github.javaparser:javaparser-symbol-solver-core:3.26.4")
   testImplementation("io.vertx:vertx-unit")
   testImplementation("junit:junit:4.13.2")
 }
