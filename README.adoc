@@ -1,0 +1,28 @@
+= Java Dependency Analyzer
+
+image:https://img.shields.io/badge/vert.x-4.5.14-purple.svg[link="https://vertx.io"]
+image:https://img.shields.io/badge/JavaParser-3.25.7-blue.svg[link="https://javaparser.org"]
+
+
+Asynchronously analyse the dependencies in a Java project.
+
+== Building
+Run application:
+```
+./gradlew clean run
+```
+
+Run tests:
+```
+./gradlew clean test
+```
+
+Package application:
+```
+./gradlew clean assemble
+```
+
+== Authors
+https://github.com/LucaSamore[Luca Samorè]
+
+https://github.com/robertomitugno[Roberto Mitugno]
