@@ -11,9 +11,7 @@ import org.junit.runner.RunWith
 @RunWith(VertxUnitRunner::class)
 class TestMainVerticle {
 
-  @Rule
-  @JvmField
-  val rule = RunTestOnContext()
+  @Rule @JvmField val rule = RunTestOnContext()
 
   @Before
   fun deploy_verticle(testContext: TestContext) {
