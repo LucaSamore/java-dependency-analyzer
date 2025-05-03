@@ -78,7 +78,7 @@ internal class DependencyAnalyzerLibImpl(private val vertx: Vertx) : DependencyA
   }
 
   companion object {
-    private const val JAVA_FILES = "*.java"
+    private const val JAVA_FILES = ".*\\.java\$"
     private const val JAVA_EXTENSION = ".java"
     private const val ENCODING = "UTF-8"
     private const val DEFAULT_PACKAGE = "pcd.ass02"

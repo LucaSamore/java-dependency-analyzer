@@ -1,4 +1,4 @@
-package pcd.ass02;
+package pcd.ass02.samples;
 
 import kotlin.Unit;
 import org.jetbrains.annotations.NotNull;
