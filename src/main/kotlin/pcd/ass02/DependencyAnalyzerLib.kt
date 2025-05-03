@@ -1,19 +1,18 @@
 package pcd.ass02
 
 import io.vertx.core.Future
-import java.io.File
+import java.nio.file.Path
 
 interface DependencyAnalyzerLib {
+  fun getClassDependencies(classFile: Path): Future<ClassDepsReport>
 
-  fun getClassDependencies(classFile: File): Future<ClassDepsReport>
+  fun getPackageDependencies(packageFolder: Path): Future<PackageDepsReport>
 
-  fun getPackageDependencies(packageFolder: File): Future<PackageDepsReport>
-
-  fun getProjectDependencies(projectFolder: File): Future<ProjectDepsReport>
+  fun getProjectDependencies(projectFolder: Path): Future<ProjectDepsReport>
 }
 
 data class ClassDepsReport(val className: String, val usedTypes: Set<String>)
 
 data class PackageDepsReport(val packageName: String, val classReports: List<ClassDepsReport>)
 
-data class ProjectDepsReport(val packageReports: List<PackageDepsReport>)
+data class ProjectDepsReport(val projectName: String, val packageReports: List<PackageDepsReport>)

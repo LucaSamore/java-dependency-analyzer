@@ -7,15 +7,13 @@ import com.github.javaparser.ast.expr.ObjectCreationExpr
 import com.github.javaparser.ast.type.*
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
 
-internal class JavaDependencyVisitor: VoidVisitorAdapter<Unit>() {
+internal class JavaDependencyVisitor : VoidVisitorAdapter<Unit>() {
 
   val foundDependencies = mutableSetOf<String>()
   var currentPackage = ""
 
   override fun visit(cu: CompilationUnit, arg: Unit?) {
-    cu.packageDeclaration.ifPresent {
-      currentPackage = it.nameAsString
-    }
+    cu.packageDeclaration.ifPresent { currentPackage = it.nameAsString }
     super.visit(cu, arg)
   }
 
@@ -49,10 +47,10 @@ internal class JavaDependencyVisitor: VoidVisitorAdapter<Unit>() {
   }
 
   override fun visit(oce: ObjectCreationExpr, arg: Unit?) {
-    val typeName = oce.type.let {
-      it.scope.map { s -> "${s.nameAsString}.${it.nameAsString}" }
-        .orElse(it.nameAsString)
-    }
+    val typeName =
+        oce.type.let {
+          it.scope.map { s -> "${s.nameAsString}.${it.nameAsString}" }.orElse(it.nameAsString)
+        }
     foundDependencies.add(typeName)
     super.visit(oce, arg)
   }
@@ -74,9 +72,7 @@ internal class JavaDependencyVisitor: VoidVisitorAdapter<Unit>() {
       type.isClassOrInterfaceType -> {
         val coit = type.asClassOrInterfaceType()
         foundDependencies.add(coit.nameWithScope)
-        coit.typeArguments.ifPresent { args ->
-          args.forEach { addType(it) }
-        }
+        coit.typeArguments.ifPresent { args -> args.forEach { addType(it) } }
       }
 
       type.isWildcardType -> {
