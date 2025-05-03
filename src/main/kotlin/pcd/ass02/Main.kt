@@ -29,4 +29,14 @@ fun main() {
         it.classReports.forEach(::println)
       }
       .onFailure { println("Error: ${it.message}") }
+
+  val project = Path.of(".")
+
+  analyzer
+      .getProjectDependencies(project)
+      .onSuccess {
+        println("=== Project dependencies ===")
+        it.packageReports.forEach(::println)
+      }
+      .onFailure { println("Error: ${it.message}") }
 }

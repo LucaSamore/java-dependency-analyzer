@@ -15,4 +15,4 @@ data class ClassDepsReport(val className: String, val usedTypes: Set<String>)
 
 data class PackageDepsReport(val packageName: String, val classReports: List<ClassDepsReport>)
 
-data class ProjectDepsReport(val projectName: String, val packageReports: List<PackageDepsReport>)
+data class ProjectDepsReport(val packageReports: List<PackageDepsReport>)

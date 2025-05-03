@@ -5,6 +5,7 @@ import com.github.javaparser.ast.CompilationUnit
 import io.vertx.core.Future
 import io.vertx.core.Promise
 import io.vertx.core.Vertx
+import java.nio.file.Files
 import java.nio.file.Path
 import java.util.concurrent.Callable
 import pcd.ass02.ClassDepsReport
@@ -55,7 +56,19 @@ internal class DependencyAnalyzerLibImpl(private val vertx: Vertx) : DependencyA
   }
 
   override fun getProjectDependencies(projectFolder: Path): Future<ProjectDepsReport> {
-    TODO("Remember that vertx readDir does not perform a recursive read")
+    val promise = Promise.promise<ProjectDepsReport>()
+    getPackageFolders(projectFolder)
+        .onSuccess { packageFolders ->
+          val packageFutures = packageFolders.map { getPackageDependencies(it) }
+          Future.all(packageFutures)
+              .onSuccess { result ->
+                val packageReports = result.list<PackageDepsReport>()
+                promise.complete(ProjectDepsReport(packageReports))
+              }
+              .onFailure { err -> promise.fail(err) }
+        }
+        .onFailure { promise.fail(it) }
+    return promise.future()
   }
 
   private fun readSourceFile(path: Path): Future<String> {
@@ -75,6 +88,21 @@ internal class DependencyAnalyzerLibImpl(private val vertx: Vertx) : DependencyA
               compilationUnit.packageDeclaration.map { it.nameAsString }.orElse(DEFAULT_PACKAGE)
           packageName to usedTypes
         })
+  }
+
+  private fun getPackageFolders(basePath: Path): Future<List<Path>> {
+    return vertx.executeBlocking(
+        Callable {
+          Files.walk(basePath)
+              .filter { Files.isDirectory(it) }
+              .filter { dir ->
+                Files.list(dir).anyMatch { file ->
+                  Files.isRegularFile(file) && file.toString().endsWith(".java")
+                }
+              }
+              .toList()
+        },
+        false)
   }
 
   companion object {
