@@ -12,6 +12,10 @@ import pcd.ass02.DependencyAnalyzerLib
 import pcd.ass02.PackageDepsReport
 import pcd.ass02.ProjectDepsReport
 
+private typealias PackageName = String
+
+private typealias Dependencies = Set<String>
+
 internal class DependencyAnalyzerLibImpl(private val vertx: Vertx) : DependencyAnalyzerLib {
 
   override fun getClassDependencies(classFile: Path): Future<ClassDepsReport> {
@@ -20,13 +24,17 @@ internal class DependencyAnalyzerLibImpl(private val vertx: Vertx) : DependencyA
         .compose(this::parseSourceCode)
         .compose(this::visitAST)
         .onFailure(promise::fail)
-        .onSuccess { TODO("Build ClassDepsReport") }
+        .onSuccess {
+          val (packageName, dependencies) = it
+          val className = classFile.fileName.toString().removeSuffix(JAVA_EXTENSION)
+          promise.complete(ClassDepsReport("${packageName}.${className}", dependencies))
+        }
     return promise.future()
   }
 
   override fun getPackageDependencies(packageFolder: Path): Future<PackageDepsReport> {
     val promise = Promise.promise<PackageDepsReport>()
-    vertx.fileSystem().readDir(packageFolder.toAbsolutePath().toString(), "*.java") { ar ->
+    vertx.fileSystem().readDir(packageFolder.toAbsolutePath().toString(), JAVA_FILES) { ar ->
       if (ar.succeeded()) {
         val javaFiles = ar.result().map { Path.of(it) }
         val futures = javaFiles.map { getClassDependencies(it) }
@@ -51,14 +59,28 @@ internal class DependencyAnalyzerLibImpl(private val vertx: Vertx) : DependencyA
   }
 
   private fun readSourceFile(path: Path): Future<String> {
-    return vertx.fileSystem().readFile(path.toString()).map { it.toString("UTF-8") }
+    return vertx.fileSystem().readFile(path.toString()).map { it.toString(ENCODING) }
   }
 
   private fun parseSourceCode(sourceCode: String): Future<CompilationUnit> {
     return vertx.executeBlocking(Callable { StaticJavaParser.parse(sourceCode) }, false)
   }
 
-  private fun visitAST(compilationUnit: CompilationUnit): Future<String> {
-    return vertx.executeBlocking(Callable { TODO("Get dependencies") })
+  private fun visitAST(compilationUnit: CompilationUnit): Future<Pair<PackageName, Dependencies>> {
+    return vertx.executeBlocking(
+        Callable {
+          val usedTypes = mutableSetOf<String>()
+          JavaDependencyVisitor().also { it.visit(compilationUnit, usedTypes) }
+          val packageName =
+              compilationUnit.packageDeclaration.map { it.nameAsString }.orElse(DEFAULT_PACKAGE)
+          packageName to usedTypes
+        })
+  }
+
+  companion object {
+    private const val JAVA_FILES = "*.java"
+    private const val JAVA_EXTENSION = ".java"
+    private const val ENCODING = "UTF-8"
+    private const val DEFAULT_PACKAGE = "pcd.ass02"
   }
 }

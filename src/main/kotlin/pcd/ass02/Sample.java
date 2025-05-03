@@ -1,8 +1,11 @@
 package pcd.ass02;
 
+import kotlin.Unit;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Optional;
 
-public final class Sample implements Runnable {
+public final class Sample implements Runnable, Comparable<Unit> {
 
   private String example;
 
@@ -13,5 +16,10 @@ public final class Sample implements Runnable {
 
   private Optional<String> getExample() {
     return Optional.ofNullable(this.example);
+  }
+
+  @Override
+  public int compareTo(@NotNull Unit o) {
+    return 0;
   }
 }
