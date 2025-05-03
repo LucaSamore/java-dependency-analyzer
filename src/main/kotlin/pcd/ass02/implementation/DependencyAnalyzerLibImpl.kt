@@ -25,11 +25,29 @@ internal class DependencyAnalyzerLibImpl(private val vertx: Vertx) : DependencyA
   }
 
   override fun getPackageDependencies(packageFolder: Path): Future<PackageDepsReport> {
-    TODO("Not yet implemented")
+    val promise = Promise.promise<PackageDepsReport>()
+    vertx.fileSystem().readDir(packageFolder.toAbsolutePath().toString(), "*.java") { ar ->
+      if (ar.succeeded()) {
+        val javaFiles = ar.result().map { Path.of(it) }
+        val futures = javaFiles.map { getClassDependencies(it) }
+        Future.all(futures).onComplete { result ->
+          if (result.succeeded()) {
+            val reports = result.result().list<ClassDepsReport>()
+            val packageName = packageFolder.fileName.toString()
+            promise.complete(PackageDepsReport(packageName, reports))
+          } else {
+            promise.fail(result.cause())
+          }
+        }
+      } else {
+        promise.fail(ar.cause())
+      }
+    }
+    return promise.future()
   }
 
   override fun getProjectDependencies(projectFolder: Path): Future<ProjectDepsReport> {
-    TODO("Not yet implemented")
+    TODO("Remember that vertx readDir does not perform a recursive read")
   }
 
   private fun readSourceFile(path: Path): Future<String> {
