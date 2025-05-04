@@ -97,7 +97,7 @@ internal class DependencyAnalyzerLibImpl(private val vertx: Vertx) : DependencyA
               .filter { Files.isDirectory(it) }
               .filter { dir ->
                 Files.list(dir).anyMatch { file ->
-                  Files.isRegularFile(file) && file.toString().endsWith(".java")
+                  Files.isRegularFile(file) && file.toString().endsWith(JAVA_EXTENSION)
                 }
               }
               .toList()
