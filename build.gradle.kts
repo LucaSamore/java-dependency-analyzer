@@ -31,6 +31,7 @@ dependencies {
   implementation("io.vertx:vertx-lang-kotlin")
   implementation(kotlin("stdlib-jdk8"))
   implementation("com.github.javaparser:javaparser-symbol-solver-core:3.26.4")
+  implementation("io.reactivex.rxjava3:rxjava:3.1.10")
   testImplementation("io.vertx:vertx-unit")
   testImplementation("junit:junit:4.13.2")
 }
