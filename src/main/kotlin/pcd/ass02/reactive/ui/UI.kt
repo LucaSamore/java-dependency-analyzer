@@ -1,11 +1,11 @@
 package pcd.ass02.reactive.ui
 
-import pcd.ass02.reactive.DependencyAnalyser
+import pcd.ass02.reactive.implementation.DependencyAnalyserLibImpl
 import java.awt.BorderLayout
 import java.awt.FlowLayout
 import javax.swing.*
 
-class UI(private val dependencyAnalyser: DependencyAnalyser) : JFrame("Dependency Analyser") {
+class UI(private val dependencyAnalyser: DependencyAnalyserLibImpl) : JFrame("Dependency Analyser") {
   private val pathField = JTextField(30)
   private val browseButton = JButton("Browse")
   private val analyseButton = JButton("Analyse")
@@ -104,8 +104,4 @@ class UI(private val dependencyAnalyser: DependencyAnalyser) : JFrame("Dependenc
     return if (numBuilder.isNotEmpty()) numBuilder.toString().toInt() else 0
   }
 
-  override fun dispose() {
-    dependencyAnalyser.dispose()
-    super.dispose()
-  }
 }
