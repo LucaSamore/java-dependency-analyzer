@@ -67,7 +67,7 @@ class ParserLibImpl : ParserLib {
       val className = classDecl.nameAsString
       val fullClassName = if (packageName.isEmpty()) className else "$packageName.$className"
 
-      val visitor = JavaDependencyVisitorImpl(fullClassName)
+      val visitor = JavaDependencyVisitor(fullClassName)
       visitor.visit(cu, null)
 
       visitor.dependencies.forEach { dependency ->

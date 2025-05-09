@@ -1,11 +1,11 @@
 package pcd.ass02.reactive.ui
 
-import pcd.ass02.reactive.implementation.DependencyAnalyserLibImpl
+import pcd.ass02.reactive.DependencyAnalyserLib
 import java.awt.BorderLayout
 import java.awt.FlowLayout
 import javax.swing.*
 
-class UI(private val dependencyAnalyser: DependencyAnalyserLibImpl) : JFrame("Dependency Analyser") {
+class AppWindow(private val analyser: DependencyAnalyserLib) : JFrame("Dependency Analyser") {
   private val pathField = JTextField(30)
   private val browseButton = JButton("Browse")
   private val analyseButton = JButton("Analyse")
@@ -18,7 +18,12 @@ class UI(private val dependencyAnalyser: DependencyAnalyserLibImpl) : JFrame("De
 
   init {
     setSize(900, 700)
+    setupUI()
+    setupEventHandlers()
+    setupDataBindings()
+  }
 
+  private fun setupUI() {
     val topPanel = JPanel(FlowLayout(FlowLayout.LEFT))
     topPanel.add(JLabel("Project:"))
     topPanel.add(pathField)
@@ -32,22 +37,20 @@ class UI(private val dependencyAnalyser: DependencyAnalyserLibImpl) : JFrame("De
     statusPanel.add(statusLabel, BorderLayout.WEST)
     statusPanel.add(statsPanel, BorderLayout.EAST)
 
-    graphPanel.onNodeSelected = { selectedNode ->
-      detailsPanel.setSelectedNode(selectedNode)
-    }
-
     val splitPane = JSplitPane(JSplitPane.VERTICAL_SPLIT)
     splitPane.topComponent = graphPanel
     splitPane.bottomComponent = detailsPanel
     splitPane.resizeWeight = 0.7
-    splitPane.setDividerLocation(500)
+    splitPane.dividerLocation = 500
     splitPane.isContinuousLayout = true
 
     layout = BorderLayout()
     add(topPanel, BorderLayout.NORTH)
     add(splitPane, BorderLayout.CENTER)
     add(statusPanel, BorderLayout.SOUTH)
+  }
 
+  private fun setupEventHandlers() {
     browseButton.addActionListener {
       val fileChooser = JFileChooser()
       fileChooser.fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
@@ -57,37 +60,47 @@ class UI(private val dependencyAnalyser: DependencyAnalyserLibImpl) : JFrame("De
     }
 
     analyseButton.addActionListener {
-      pathField.text = "C:\\Users\\Roberto Mitugno\\Documents\\Università\\Quarto Anno\\PCD\\Lab"
-      //pathField.text = "C:\\Users\\Roberto Mitugno\\Documents\\Università\\Quarto Anno\\PCD\\Lab\\Assignment\\assignment-02"
-      dependencyAnalyser.analyse(pathField.text)
+      analyser.analyse(pathField.text)
     }
 
-    dependencyAnalyser.dependencies.subscribe { deps ->
+    graphPanel.onNodeSelected = { selectedNode ->
+      detailsPanel.setSelectedNode(selectedNode)
+    }
+  }
+
+  private fun setupDataBindings() {
+    analyser.dependencies.subscribe { dependencies ->
       SwingUtilities.invokeLater {
-        graphPanel.setDependencies(deps)
-        detailsPanel.setDependencies(deps)
+        graphPanel.setDependencies(dependencies)
+        detailsPanel.setDependencies(dependencies)
       }
     }
 
-    dependencyAnalyser.status.subscribe { status ->
+    analyser.status.subscribe { status ->
       SwingUtilities.invokeLater {
         statusLabel.text = status
-        analyseButton.isEnabled = !status.startsWith("Analyzing")
-        browseButton.isEnabled = !status.startsWith("Analyzing")
 
-        if (status.contains("classes") && status.contains("dependencies")) {
-          val parts = status.split(",")
-          if (parts.size >= 2) {
-            val classesPart = parts[0].trim()
-            val depsPart = parts[1].trim()
+        val analyzing = status.startsWith("Analyzing")
+        analyseButton.isEnabled = !analyzing
+        browseButton.isEnabled = !analyzing
 
-            val classCount = extractNumber(classesPart)
-            val depCount = extractNumber(depsPart)
+        updateStatisticsLabels(status)
+      }
+    }
+  }
 
-            classesLabel.text = "Classes: $classCount"
-            dependenciesLabel.text = "Dependencies: $depCount"
-          }
-        }
+  private fun updateStatisticsLabels(status: String) {
+    if (status.contains("classes") && status.contains("dependencies")) {
+      val parts = status.split(",")
+      if (parts.size >= 2) {
+        val classesPart = parts[0].trim()
+        val dependenciesPart = parts[1].trim()
+
+        val classCount = extractNumber(classesPart)
+        val dependencyCount = extractNumber(dependenciesPart)
+
+        classesLabel.text = "Classes: $classCount"
+        dependenciesLabel.text = "Dependencies: $dependencyCount"
       }
     }
   }
@@ -103,5 +116,4 @@ class UI(private val dependencyAnalyser: DependencyAnalyserLibImpl) : JFrame("De
     }
     return if (numBuilder.isNotEmpty()) numBuilder.toString().toInt() else 0
   }
-
 }

@@ -6,25 +6,25 @@ import javax.swing.*
 import javax.swing.border.TitledBorder
 
 class DependencyDetailsPanel : JPanel() {
-  private val titleLabel = JLabel("Select a class to view AST dependencies")
+  private val titleLabel = JLabel("Select a class to view dependencies")
   private val outgoingPanel = JPanel(BorderLayout())
   private val incomingPanel = JPanel(BorderLayout())
   private val outgoingList = JList<String>()
   private val incomingList = JList<String>()
-  private var currentNode: String? = null
+  private var selectedNode: String? = null
   private var dependencies = listOf<Dependency>()
 
   init {
     layout = BorderLayout()
-    border = BorderFactory.createTitledBorder("AST Dependency Details")
+    border = BorderFactory.createTitledBorder("Dependency Details")
     background = Color(250, 250, 245)
 
     titleLabel.font = Font("SansSerif", Font.BOLD, 14)
     titleLabel.horizontalAlignment = SwingConstants.CENTER
     titleLabel.border = BorderFactory.createEmptyBorder(5, 5, 5, 5)
 
-    outgoingPanel.border = BorderFactory.createTitledBorder("Used/Accessed Types (AST Dependencies)")
-    incomingPanel.border = BorderFactory.createTitledBorder("Used By (Incoming Dependencies)")
+    outgoingPanel.border = BorderFactory.createTitledBorder("Outgoing Dependencies")
+    incomingPanel.border = BorderFactory.createTitledBorder("Incoming Dependencies")
 
     outgoingList.selectionMode = ListSelectionModel.SINGLE_SELECTION
     incomingList.selectionMode = ListSelectionModel.SINGLE_SELECTION
@@ -44,39 +44,37 @@ class DependencyDetailsPanel : JPanel() {
 
   fun setDependencies(dependencies: List<Dependency>) {
     this.dependencies = dependencies
-    updateDetails()
+    updateView()
   }
 
   fun setSelectedNode(node: String?) {
-    currentNode = node
-    updateDetails()
+    selectedNode = node
+    updateView()
   }
 
-  private fun updateDetails() {
-    if (currentNode == null) {
-      titleLabel.text = "Select a class to view AST dependencies"
+  private fun updateView() {
+    if (selectedNode == null) {
+      titleLabel.text = "Select a class to view dependencies"
       outgoingList.setListData(emptyArray())
       incomingList.setListData(emptyArray())
       return
     }
 
-    titleLabel.text = "AST Dependencies for: $currentNode"
+    titleLabel.text = "Dependencies for: $selectedNode"
 
-    val inDeps = dependencies.filter { it.to == currentNode }
-    val outDeps = dependencies.filter { it.from == currentNode }
+    val outDeps = dependencies.filter { it.sourceClass == selectedNode }
+    val inDeps = dependencies.filter { it.targetClass == selectedNode }
 
-    (outgoingPanel.border as TitledBorder).title =
-      "Used/Accessed Types:"
-    (incomingPanel.border as TitledBorder).title =
-      "Used By:"
+    (outgoingPanel.border as TitledBorder).title = "Outgoing Dependencies (${outDeps.size})"
+    (incomingPanel.border as TitledBorder).title = "Incoming Dependencies (${inDeps.size})"
 
     val outByType = outDeps.groupBy { it.type }
     val outItems = ArrayList<String>()
 
     outByType.forEach { (type, deps) ->
-      outItems.add("■ ${deps.size} ${type}:")
+      outItems.add("■ ${deps.size} $type:")
 
-      val targets = deps.map { it.to }.toSet()
+      val targets = deps.map { it.targetClass }.toSet()
       targets.forEach { target ->
         outItems.add("   ${target.substringAfterLast('.')}")
       }
@@ -85,7 +83,7 @@ class DependencyDetailsPanel : JPanel() {
     }
 
     val inItems = ArrayList<String>()
-    val inBySource = inDeps.groupBy { it.from }
+    val inBySource = inDeps.groupBy { it.sourceClass }
 
     inBySource.forEach { (source, deps) ->
       val sourceShort = source.substringAfterLast('.')
