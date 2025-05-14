@@ -5,42 +5,52 @@ import pcd.ass02.reactive.model.Dependency
 
 class JavaDependencyVisitor(private val className: String) : JavaParserVisitorBase<Void?>() {
 
-  val dependencies = mutableListOf<Dependency>()
+  private val dependencyMap = mutableMapOf<Pair<String, String>, Dependency>()
+
+  val dependencies: List<Dependency>
+    get() = dependencyMap.values.toList()
 
   override fun handleImport(importName: String, isAsterisk: Boolean) {
     if (isAsterisk) {
-      dependencies.add(Dependency(className, importName, "package import"))
+      addDependency(importName, "package import")
     } else {
       val packageName = getPackageFromImport(importName)
-      dependencies.add(Dependency(className, importName, "type import from package: $packageName"))
+      addDependency(importName, "type import from package: $packageName")
     }
   }
 
   override fun handleExtends(typeName: String) {
-    dependencies.add(Dependency(className, typeName, "extends"))
+    addDependency(typeName, "extends")
   }
 
   override fun handleImplements(typeName: String) {
-    dependencies.add(Dependency(className, typeName, "implements"))
+    addDependency(typeName, "implements")
   }
 
   override fun handleVariableType(typeName: String) {
-    dependencies.add(Dependency(className, typeName, "variable"))
+    addDependency(typeName, "variable")
   }
 
   override fun handleFieldType(typeName: String) {
-    dependencies.add(Dependency(className, typeName, "field"))
+    addDependency(typeName, "field")
   }
 
   override fun handleObjectCreation(typeName: String) {
-    dependencies.add(Dependency(className, typeName, "creation"))
+    addDependency(typeName, "creation")
   }
 
   override fun handleReturnType(typeName: String) {
-    dependencies.add(Dependency(className, typeName, "return type"))
+    addDependency(typeName, "return type")
   }
 
   override fun handleParameterType(typeName: String) {
-    dependencies.add(Dependency(className, typeName, "parameter"))
+    addDependency(typeName, "parameter")
+  }
+
+  private fun addDependency(targetClass: String, type: String) {
+    val key = Pair(targetClass, type)
+    if (key !in dependencyMap) {
+      dependencyMap[key] = Dependency(className, targetClass, type)
+    }
   }
 }
