@@ -1,5 +1,6 @@
 package pcd.ass02.reactive.ui
 
+import io.reactivex.rxjava3.schedulers.Schedulers
 import pcd.ass02.reactive.DependencyAnalyserLib
 import java.awt.BorderLayout
 import java.awt.FlowLayout
@@ -69,8 +70,10 @@ class AppWindow(private val analyser: DependencyAnalyserLib) : JFrame("Dependenc
   }
 
   private fun setupDataBindings() {
-    analyser.dependencies.subscribe { dependencies ->
-      SwingUtilities.invokeLater {
+    analyser.dependencies
+      .observeOn(Schedulers.io())
+      .subscribe { dependencies ->
+        SwingUtilities.invokeLater {
         graphPanel.setDependencies(dependencies)
         detailsPanel.setDependencies(dependencies)
       }
