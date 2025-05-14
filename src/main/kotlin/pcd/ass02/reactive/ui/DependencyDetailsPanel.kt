@@ -65,9 +65,6 @@ class DependencyDetailsPanel : JPanel() {
     val outDeps = dependencies.filter { it.sourceClass == selectedNode }
     val inDeps = dependencies.filter { it.targetClass == selectedNode }
 
-    (outgoingPanel.border as TitledBorder).title = "Outgoing Dependencies (${outDeps.size})"
-    (incomingPanel.border as TitledBorder).title = "Incoming Dependencies (${inDeps.size})"
-
     val outByType = outDeps.groupBy { it.type }
     val outItems = ArrayList<String>()
 
