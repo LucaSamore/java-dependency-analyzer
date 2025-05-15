@@ -27,11 +27,10 @@ class DependencyGraphPanel : JPanel() {
   private var simulationIterations = 0
   private val maxSimulationIterations = 100
 
-  // Parametri modificati per aumentare la distanza tra i nodi
-  private val repulsionStrength = 1500.0   // Aumentato per aumentare la repulsione
-  private val springStrength = 0.02        // Ridotto per diminuire l'attrazione
-  private val damping = 0.85               // Maggiore stabilità
-  private val minDistance = nodeRadius * 10.0 // Distanza minima desiderata maggiore
+  private val repulsionStrength = 1500.0
+  private val springStrength = 0.02
+  private val damping = 0.85
+  private val minDistance = nodeRadius * 10.0
 
   var onNodeSelected: ((String?) -> Unit)? = null
 
@@ -95,8 +94,7 @@ class DependencyGraphPanel : JPanel() {
     val width = width.toDouble().coerceAtLeast(100.0)
     val height = height.toDouble().coerceAtLeast(100.0)
 
-    // Distribuzione iniziale più ampia per favorire maggiore spazio
-    val spreadFactor = 3 // Aumenta l'area iniziale per i nodi
+    val spreadFactor = 3
     uniqueClasses.forEach { className ->
       nodePositions[className] = oldPositions[className] ?: Pair(
         width/2 + (Math.random() - 0.5) * width * spreadFactor,
@@ -134,12 +132,11 @@ class DependencyGraphPanel : JPanel() {
 
     simulationTimer?.stop()
 
-    simulationTimer = Timer(16) { // ~60 FPS
+    simulationTimer = Timer(16) {
       if (isSimulationActive) {
         val stable = updateForces()
         simulationIterations++
 
-        // Stop simulation automatically when stable or after max iterations
         if (stable || simulationIterations >= maxSimulationIterations) {
           pauseSimulation()
         }
@@ -157,14 +154,12 @@ class DependencyGraphPanel : JPanel() {
   private fun updateForces(): Boolean {
     var totalMovement = 0.0
 
-    // Calculate repulsive forces (node-to-node)
     val repulsiveForces = mutableMapOf<String, Pair<Double, Double>>()
 
     for (node in nodePositions.keys) {
       repulsiveForces[node] = Pair(0.0, 0.0)
     }
 
-    // Calculate repulsion between all pairs of nodes
     for (node1 in nodePositions.keys) {
       val pos1 = nodePositions[node1] ?: continue
 
@@ -177,21 +172,17 @@ class DependencyGraphPanel : JPanel() {
           val distanceSquared = dx * dx + dy * dy
           val distance = sqrt(distanceSquared).coerceAtLeast(0.1)
 
-          // Force is inversely proportional to distance
           val force = repulsionStrength / distanceSquared
 
-          // Direction from node2 to node1
           val dirX = dx / distance
           val dirY = dy / distance
 
-          // Add repulsive force to node1
           val (forceX, forceY) = repulsiveForces[node1] ?: Pair(0.0, 0.0)
           repulsiveForces[node1] = Pair(forceX + dirX * force, forceY + dirY * force)
         }
       }
     }
 
-    // Calculate spring forces (edges)
     val springForces = mutableMapOf<String, Pair<Double, Double>>()
     for (node in nodePositions.keys) {
       springForces[node] = Pair(0.0, 0.0)
@@ -205,17 +196,13 @@ class DependencyGraphPanel : JPanel() {
       val dy = sourcePos.second - targetPos.second
       val distance = sqrt(dx * dx + dy * dy).coerceAtLeast(0.1)
 
-      // Ideal length is much larger than minimum distance to create more space
       val idealLength = minDistance * 5.0
 
-      // Calculate spring force (proportional to difference from ideal length)
       val force = springStrength * (distance - idealLength)
 
-      // Direction vectors
       val dirX = dx / distance
       val dirY = dy / distance
 
-      // Apply spring force to both nodes (in opposite directions)
       val (sourceForceX, sourceForceY) = springForces[dep.sourceClass] ?: Pair(0.0, 0.0)
       springForces[dep.sourceClass] = Pair(sourceForceX - dirX * force, sourceForceY - dirY * force)
 
@@ -223,39 +210,32 @@ class DependencyGraphPanel : JPanel() {
       springForces[dep.targetClass] = Pair(targetForceX + dirX * force, targetForceY + dirY * force)
     }
 
-    // Apply forces to update velocities and positions
     for (node in nodePositions.keys) {
       val pos = nodePositions[node] ?: continue
       val vel = nodeVelocities[node] ?: Pair(0.0, 0.0)
 
-      // Combine all forces
       val repForce = repulsiveForces[node] ?: Pair(0.0, 0.0)
       val sprForce = springForces[node] ?: Pair(0.0, 0.0)
 
-      // Update velocity using forces and apply damping
       val newVelX = (vel.first + repForce.first + sprForce.first) * damping
       val newVelY = (vel.second + repForce.second + sprForce.second) * damping
 
-      // Limit maximum velocity to prevent instability
       val maxVel = 6.0
       val velX = newVelX.coerceIn(-maxVel, maxVel)
       val velY = newVelY.coerceIn(-maxVel, maxVel)
 
       nodeVelocities[node] = Pair(velX, velY)
 
-      // Update position
       val newX = pos.first + velX
       val newY = pos.second + velY
       nodePositions[node] = Pair(newX, newY)
 
-      // Track total movement to determine if simulation is stable
       totalMovement += sqrt(velX * velX + velY * velY)
     }
 
-    // Use larger boundaries to allow nodes to spread out more
     val width = width.toDouble().coerceAtLeast(100.0)
     val height = height.toDouble().coerceAtLeast(100.0)
-    val extraSpace = 2.0 // Espandi l'area di movimento
+    val extraSpace = 2.0
 
     for (node in nodePositions.keys) {
       val pos = nodePositions[node] ?: continue
@@ -263,7 +243,6 @@ class DependencyGraphPanel : JPanel() {
       var newX = x
       var newY = y
 
-      // Consenti ai nodi di muoversi un po' oltre i confini visibili
       val leftBound = -width * 0.5 * extraSpace
       val rightBound = width * 1.5 * extraSpace
       val topBound = -height * 0.5 * extraSpace
@@ -280,7 +259,6 @@ class DependencyGraphPanel : JPanel() {
       }
     }
 
-    // Consider stable if total movement is below threshold
     return totalMovement < 1.0
   }
 
@@ -362,7 +340,6 @@ class DependencyGraphPanel : JPanel() {
       g2d.drawString(shortName, (x - textWidth/2).toInt(), (y + 4).toInt())
     }
 
-    // Draw status indicator
     g2d.scale(1.0/zoom, 1.0/zoom)
     g2d.translate(-offsetX, -offsetY)
 
@@ -372,7 +349,6 @@ class DependencyGraphPanel : JPanel() {
     }
   }
 
-  // Ensure simulation stops when component is removed
   override fun removeNotify() {
     super.removeNotify()
     simulationTimer?.stop()
