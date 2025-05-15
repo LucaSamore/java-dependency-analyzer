@@ -4,6 +4,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import pcd.ass02.reactive.DependencyAnalyserLib
 import java.awt.BorderLayout
 import java.awt.FlowLayout
+import java.util.concurrent.TimeUnit
 import javax.swing.*
 
 class AppWindow(private val analyser: DependencyAnalyserLib) : JFrame("Dependency Analyser") {
@@ -74,22 +75,22 @@ class AppWindow(private val analyser: DependencyAnalyserLib) : JFrame("Dependenc
       .observeOn(Schedulers.io())
       .subscribe { dependencies ->
         SwingUtilities.invokeLater {
-        graphPanel.setDependencies(dependencies)
-        detailsPanel.setDependencies(dependencies)
+          graphPanel.setDependencies(dependencies)
+          detailsPanel.setDependencies(dependencies)
+        }
       }
-    }
 
-    analyser.status.subscribe { status ->
-      SwingUtilities.invokeLater {
-        statusLabel.text = status
-
-        val analyzing = status.startsWith("Analyzing")
-        analyseButton.isEnabled = !analyzing
-        browseButton.isEnabled = !analyzing
-
-        updateStatisticsLabels(status)
+    analyser.status
+      .observeOn(Schedulers.io())
+      .subscribe { status ->
+        SwingUtilities.invokeLater {
+          statusLabel.text = status
+          val analyzing = status.startsWith("Analyzing")
+          analyseButton.isEnabled = !analyzing
+          browseButton.isEnabled = !analyzing
+          updateStatisticsLabels(status)
+        }
       }
-    }
   }
 
   private fun updateStatisticsLabels(status: String) {

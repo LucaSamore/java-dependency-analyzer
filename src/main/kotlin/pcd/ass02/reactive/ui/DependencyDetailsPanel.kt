@@ -3,7 +3,6 @@ package pcd.ass02.reactive.ui
 import pcd.ass02.reactive.model.Dependency
 import java.awt.*
 import javax.swing.*
-import javax.swing.border.TitledBorder
 
 class DependencyDetailsPanel : JPanel() {
   private val titleLabel = JLabel("Select a class to view dependencies")
