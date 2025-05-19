@@ -1,4 +1,4 @@
-package pcd.ass02.common.visitor
+package pcd.ass02.reactive
 
 import com.github.javaparser.ast.ImportDeclaration
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
@@ -20,13 +20,9 @@ abstract class JavaParserVisitorBase<T> : VoidVisitorAdapter<T>() {
   }
 
   override fun visit(n: ClassOrInterfaceDeclaration, arg: T) {
-    n.extendedTypes.forEach { extendedType ->
-      handleExtends(extendedType.nameAsString)
-    }
+    n.extendedTypes.forEach { extendedType -> handleExtends(extendedType.nameAsString) }
 
-    n.implementedTypes.forEach { implementedType ->
-      handleImplements(implementedType.nameAsString)
-    }
+    n.implementedTypes.forEach { implementedType -> handleImplements(implementedType.nameAsString) }
 
     super.visit(n, arg)
   }
@@ -59,12 +55,19 @@ abstract class JavaParserVisitorBase<T> : VoidVisitorAdapter<T>() {
   }
 
   protected abstract fun handleImport(importName: String, isAsterisk: Boolean)
+
   protected abstract fun handleExtends(typeName: String)
+
   protected abstract fun handleImplements(typeName: String)
+
   protected abstract fun handleVariableType(typeName: String)
+
   protected abstract fun handleFieldType(typeName: String)
+
   protected abstract fun handleObjectCreation(typeName: String)
+
   protected abstract fun handleReturnType(typeName: String)
+
   protected abstract fun handleParameterType(typeName: String)
 
   protected fun getPackageFromImport(importName: String): String {

@@ -1,11 +1,10 @@
 package pcd.ass02.reactive.ui
 
 import io.reactivex.rxjava3.schedulers.Schedulers
-import pcd.ass02.reactive.DependencyAnalyserLib
 import java.awt.BorderLayout
 import java.awt.FlowLayout
-import java.util.concurrent.TimeUnit
 import javax.swing.*
+import pcd.ass02.reactive.DependencyAnalyserLib
 
 class AppWindow(private val analyser: DependencyAnalyserLib) : JFrame("Dependency Analyser") {
   private val pathField = JTextField(30)
@@ -61,36 +60,28 @@ class AppWindow(private val analyser: DependencyAnalyserLib) : JFrame("Dependenc
       }
     }
 
-    analyseButton.addActionListener {
-      analyser.analyse(pathField.text)
-    }
+    analyseButton.addActionListener { analyser.analyse(pathField.text) }
 
-    graphPanel.onNodeSelected = { selectedNode ->
-      detailsPanel.setSelectedNode(selectedNode)
-    }
+    graphPanel.onNodeSelected = { selectedNode -> detailsPanel.setSelectedNode(selectedNode) }
   }
 
   private fun setupDataBindings() {
-    analyser.dependencies
-      .observeOn(Schedulers.io())
-      .subscribe { dependencies ->
-        SwingUtilities.invokeLater {
-          graphPanel.setDependencies(dependencies)
-          detailsPanel.setDependencies(dependencies)
-        }
+    analyser.dependencies.observeOn(Schedulers.io()).subscribe { dependencies ->
+      SwingUtilities.invokeLater {
+        graphPanel.setDependencies(dependencies)
+        detailsPanel.setDependencies(dependencies)
       }
+    }
 
-    analyser.status
-      .observeOn(Schedulers.io())
-      .subscribe { status ->
-        SwingUtilities.invokeLater {
-          statusLabel.text = status
-          val analyzing = status.startsWith("Analyzing")
-          analyseButton.isEnabled = !analyzing
-          browseButton.isEnabled = !analyzing
-          updateStatisticsLabels(status)
-        }
+    analyser.status.observeOn(Schedulers.io()).subscribe { status ->
+      SwingUtilities.invokeLater {
+        statusLabel.text = status
+        val analyzing = status.startsWith("Analyzing")
+        analyseButton.isEnabled = !analyzing
+        browseButton.isEnabled = !analyzing
+        updateStatisticsLabels(status)
       }
+    }
   }
 
   private fun updateStatisticsLabels(status: String) {

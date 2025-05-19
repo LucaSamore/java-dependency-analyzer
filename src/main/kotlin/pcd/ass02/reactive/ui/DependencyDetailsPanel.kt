@@ -1,8 +1,8 @@
 package pcd.ass02.reactive.ui
 
-import pcd.ass02.reactive.model.Dependency
 import java.awt.*
 import javax.swing.*
+import pcd.ass02.reactive.model.Dependency
 
 class DependencyDetailsPanel : JPanel() {
   private val titleLabel = JLabel("Select a class to view dependencies")
@@ -71,9 +71,7 @@ class DependencyDetailsPanel : JPanel() {
       outItems.add("■ ${deps.size} $type:")
 
       val targets = deps.map { it.targetClass }.toSet()
-      targets.forEach { target ->
-        outItems.add("   ${target.substringAfterLast('.')}")
-      }
+      targets.forEach { target -> outItems.add("   ${target.substringAfterLast('.')}") }
 
       outItems.add(" ")
     }
@@ -87,9 +85,7 @@ class DependencyDetailsPanel : JPanel() {
 
       inItems.add("■ $sourceShort:")
 
-      types.forEach { type ->
-        inItems.add("   $type")
-      }
+      types.forEach { type -> inItems.add("   $type") }
 
       inItems.add(" ")
     }

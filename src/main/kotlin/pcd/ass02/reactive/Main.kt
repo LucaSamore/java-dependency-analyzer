@@ -1,9 +1,9 @@
 package pcd.ass02.reactive
 
+import javax.swing.SwingUtilities
 import pcd.ass02.reactive.implementation.DependencyAnalyserLibImpl
 import pcd.ass02.reactive.implementation.ParserLibImpl
 import pcd.ass02.reactive.ui.AppWindow
-import javax.swing.SwingUtilities
 
 fun main() {
   // Start with the Event Dispatch Thread (EDT)

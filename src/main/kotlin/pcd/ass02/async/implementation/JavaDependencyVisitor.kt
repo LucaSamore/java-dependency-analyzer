@@ -1,4 +1,4 @@
-package pcd.ass02.implementation
+package pcd.ass02.async.implementation
 
 import com.github.javaparser.ast.PackageDeclaration
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
@@ -26,7 +26,7 @@ internal class JavaDependencyVisitor : VoidVisitorAdapter<MutableSet<String>>() 
 
   override fun visit(n: MethodDeclaration?, arg: MutableSet<String>?) {
     super.visit(n, arg)
-    n?.parameters?.forEach { arg?.add(it.nameAsString) } // params type
+    n?.parameters?.forEach { arg?.add(it.type.asString()) } // params type
     arg?.add(n?.type?.asString() ?: DEFAULT) // return type
   }
 

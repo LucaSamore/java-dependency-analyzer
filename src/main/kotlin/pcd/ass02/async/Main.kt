@@ -1,8 +1,8 @@
-package pcd.ass02
+package pcd.ass02.async
 
 import io.vertx.core.Vertx
 import java.nio.file.Path
-import pcd.ass02.implementation.DependencyAnalyzerLibImpl
+import pcd.ass02.async.implementation.DependencyAnalyzerLibImpl
 
 fun main() {
   val vertx = Vertx.vertx()

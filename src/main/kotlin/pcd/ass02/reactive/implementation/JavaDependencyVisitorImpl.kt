@@ -1,6 +1,6 @@
 package pcd.ass02.reactive.implementation
 
-import pcd.ass02.common.visitor.JavaParserVisitorBase
+import pcd.ass02.reactive.JavaParserVisitorBase
 import pcd.ass02.reactive.model.Dependency
 
 class JavaDependencyVisitor(private val className: String) : JavaParserVisitorBase<Void?>() {

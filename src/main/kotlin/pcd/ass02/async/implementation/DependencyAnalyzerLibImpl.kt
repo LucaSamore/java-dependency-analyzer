@@ -1,4 +1,4 @@
-package pcd.ass02.implementation
+package pcd.ass02.async.implementation
 
 import com.github.javaparser.StaticJavaParser
 import com.github.javaparser.ast.CompilationUnit
@@ -8,10 +8,10 @@ import io.vertx.core.Vertx
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.concurrent.Callable
-import pcd.ass02.ClassDepsReport
-import pcd.ass02.DependencyAnalyzerLib
-import pcd.ass02.PackageDepsReport
-import pcd.ass02.ProjectDepsReport
+import pcd.ass02.async.ClassDepsReport
+import pcd.ass02.async.DependencyAnalyzerLib
+import pcd.ass02.async.PackageDepsReport
+import pcd.ass02.async.ProjectDepsReport
 
 private typealias PackageName = String
 

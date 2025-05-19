@@ -7,17 +7,17 @@ import io.reactivex.rxjava3.core.BackpressureStrategy
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.FlowableEmitter
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.io.File
 import pcd.ass02.reactive.ParserLib
 import pcd.ass02.reactive.model.Dependency
-import java.io.File
 
 class ParserLibImpl : ParserLib {
 
   override fun parseProject(projectPath: String): Flowable<Dependency> {
     return validatePath(projectPath)
-      .flatMap { directory -> Flowable.fromIterable(findJavaFiles(directory)) }
-      .flatMap { file -> parseFile(file) }
-      .subscribeOn(Schedulers.io())
+        .flatMap { directory -> Flowable.fromIterable(findJavaFiles(directory)) }
+        .flatMap { file -> parseFile(file) }
+        .subscribeOn(Schedulers.io())
   }
 
   private fun validatePath(projectPath: String): Flowable<File> {
@@ -44,20 +44,22 @@ class ParserLibImpl : ParserLib {
   }
 
   private fun parseFile(file: File): Flowable<Dependency> {
-    return Flowable.create({ emitter ->
-      try {
-        val parser = JavaParser()
-        val parseResult = parser.parse(file)
-        if (parseResult.isSuccessful) {
-          val cu = parseResult.result.get()
-          extractDependencies(cu, emitter)
-        }
-        emitter.onComplete()
-      } catch (e: Exception) {
-        println("Error analyzing file ${file.name}: ${e.message}")
-        emitter.onComplete()
-      }
-    }, BackpressureStrategy.BUFFER)
+    return Flowable.create(
+        { emitter ->
+          try {
+            val parser = JavaParser()
+            val parseResult = parser.parse(file)
+            if (parseResult.isSuccessful) {
+              val cu = parseResult.result.get()
+              extractDependencies(cu, emitter)
+            }
+            emitter.onComplete()
+          } catch (e: Exception) {
+            println("Error analyzing file ${file.name}: ${e.message}")
+            emitter.onComplete()
+          }
+        },
+        BackpressureStrategy.BUFFER)
   }
 
   private fun extractDependencies(cu: CompilationUnit, emitter: FlowableEmitter<Dependency>) {

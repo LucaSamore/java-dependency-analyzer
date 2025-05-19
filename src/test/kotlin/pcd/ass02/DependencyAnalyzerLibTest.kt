@@ -10,7 +10,8 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import pcd.ass02.implementation.DependencyAnalyzerLibImpl
+import pcd.ass02.async.DependencyAnalyzerLib
+import pcd.ass02.async.implementation.DependencyAnalyzerLibImpl
 
 @RunWith(VertxUnitRunner::class)
 class DependencyAnalyzerLibImplTest {
@@ -67,7 +68,7 @@ class DependencyAnalyzerLibImplTest {
           context.assertTrue(report.usedTypes.contains("BaseClass"))
           context.assertTrue(report.usedTypes.contains("Serializable"))
           context.assertTrue(report.usedTypes.contains("List<String>"))
-          context.assertTrue(report.usedTypes.contains("text"))
+          context.assertTrue(report.usedTypes.contains("String"))
           context.assertTrue(report.usedTypes.contains("void"))
           async.complete()
         }
@@ -95,11 +96,11 @@ class DependencyAnalyzerLibImplTest {
           context.assertTrue(class1!!.usedTypes.contains("Map<String,Integer>"))
           context.assertTrue(class2!!.usedTypes.contains("Set<String>"))
 
-          context.assertTrue(class1.usedTypes.contains("key"))
-          context.assertTrue(class1.usedTypes.contains("value"))
+          context.assertTrue(class1.usedTypes.contains("String"))
+          context.assertTrue(class1.usedTypes.contains("Integer"))
           context.assertTrue(class1.usedTypes.contains("void"))
 
-          context.assertTrue(class2.usedTypes.contains("tag"))
+          context.assertTrue(class2.usedTypes.contains("String"))
           context.assertTrue(class2.usedTypes.contains("boolean"))
 
           async.complete()
@@ -131,10 +132,10 @@ class DependencyAnalyzerLibImplTest {
           val clientClass = pkg2.classReports[0]
 
           context.assertTrue(serviceClass.usedTypes.contains("Future<String>"))
-          context.assertTrue(serviceClass.usedTypes.contains("input"))
+          context.assertTrue(serviceClass.usedTypes.contains("String"))
 
           context.assertTrue(clientClass.usedTypes.contains("Service"))
-          context.assertTrue(clientClass.usedTypes.contains("command"))
+          context.assertTrue(clientClass.usedTypes.contains("String"))
           context.assertTrue(clientClass.usedTypes.contains("void"))
 
           async.complete()
